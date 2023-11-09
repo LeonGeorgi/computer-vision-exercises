@@ -42,10 +42,36 @@ def main():
     sobel_filter_output_horizontal, sobel_filter_output_vertical = task_5_sobel_filter(noisy_img)
     task_6_gradient_magnitude(noisy_img, sobel_filter_output_horizontal, sobel_filter_output_vertical)
 
+    #image = noisy_img
+    # Task 7: Sobel Filter with only 3 additions/subtractions per pixel
+    task_7_3(image)
+
     cv2.destroyAllWindows()
 
     if wait_for_and_process_key_input() == STATUS_QUIT_APPLICATION:
         exit()
+
+
+def task_7_3(image):
+    border_image = cv2.copyMakeBorder(image, 1, 1, 1, 1, cv2.BORDER_REFLECT).astype(np.int16)
+    img_1 = np.zeros_like(image, dtype=np.int16)
+    height, width = image.shape
+    for row in range(height):
+        for col in range(width):
+            img_1[row, col] = border_image[row - 1, col] + border_image[row, col]
+            if img_1[row, col] != border_image[row - 1, col] + border_image[row, col]:
+                print(row, col, img_1[row, col], border_image[row - 1, col] + border_image[row, col])
+    border_img_1 = cv2.copyMakeBorder(img_1, 1, 1, 1, 1, cv2.BORDER_REFLECT)
+    img_2 = np.zeros_like(image, dtype=np.int16)
+    for row in range(height):
+        for col in range(width):
+            img_2[row, col] = border_img_1[row, col] + border_img_1[row + 1, col]
+    border_img_2 = cv2.copyMakeBorder(img_2, 1, 1, 1, 1, cv2.BORDER_REFLECT)
+    img_3 = np.zeros_like(image, dtype=np.int16)
+    for row in range(height):
+        for col in range(width):
+            img_3[row, col] = - border_img_2[row, col - 1] + border_img_2[row, col + 1]
+    show_image("Sobel Filter Image Step 3", (img_3 + 128).astype(np.uint8))
 
 
 def task_1_automatic_equilibration(image):
@@ -81,14 +107,14 @@ def task_4_box_and_gaussian_filter(noisy_img):
     show_image("Gauss Filter Image", gauss_filter_output)
 
 
-def task_5_sobel_filter(noisy_img):
+def task_5_sobel_filter(image):
     # Task 5.1: Horizontal Sobel Filter
-    sobel_filter_output_horizontal = np.zeros_like(noisy_img, dtype=np.int32)
-    util.apply_filter(noisy_img, sobel_filter_output_horizontal, util.sobel_filter_horizontal, color_offset=0)
+    sobel_filter_output_horizontal = np.zeros_like(image, dtype=np.int32)
+    util.apply_filter(image, sobel_filter_output_horizontal, util.sobel_filter_horizontal, color_offset=0)
     show_image("Sobel Filter Image", (sobel_filter_output_horizontal + 128).astype(np.uint8))
     # Task 5.2: Vertical Sobel Filter
-    sobel_filter_output_vertical = np.zeros_like(noisy_img, dtype=np.int32)
-    util.apply_filter(noisy_img, sobel_filter_output_vertical, util.sobel_filter_vertical,
+    sobel_filter_output_vertical = np.zeros_like(image, dtype=np.int32)
+    util.apply_filter(image, sobel_filter_output_vertical, util.sobel_filter_vertical,
                       color_offset=0)
     show_image("Sobel Filter Image", (sobel_filter_output_vertical + 128).astype(np.uint8))
     return sobel_filter_output_horizontal, sobel_filter_output_vertical
